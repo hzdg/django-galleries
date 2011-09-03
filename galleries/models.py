@@ -11,7 +11,7 @@ import sys, imp, importlib
 
 class ImageModel(_ImageModel, models.Model):
     title = models.CharField(max_length=50)
-    description = models.CharField(max_length=255)
+    description = models.CharField(max_length=255, blank=True)
     original_image = models.ImageField(upload_to='galleries')
 
     def __unicode__(self):
