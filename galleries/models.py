@@ -80,6 +80,7 @@ def create_sizes_image_model(app_label, class_name, sizes, verbose_name=None):
         class ResizeProcessor(processors.Resize):
             width = w
             height = h
+            crop = True
 
         class Spec(ImageSpec): # TODO: Expose a way to set this base class.
             access_as = name
