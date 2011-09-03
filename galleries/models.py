@@ -108,6 +108,9 @@ def create_membership_model(app_label, class_name, gallery_model, member_models,
         item = generic.GenericForeignKey('content_type', 'object_id')
         sort_order = models.IntegerField(default=0)
 
+        def __unicode__(self):
+            return str(self.item)
+
         class __metaclass__(ModelBase):
             def __new__(cls, old_class_name, bases, attrs):
                 return ModelBase.__new__(cls, class_name, bases, attrs)
