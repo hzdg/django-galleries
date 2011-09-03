@@ -1,0 +1,29 @@
+
+<h2>{{ portfolio.title }} (Portfolio)</h2>
+<ul>
+	{% for m in portfolio.memberships.all %}
+		{% with image=m.item %}
+			<li>
+				<img
+					src="{{ image.thumbnail.url }}"
+					width="{{ image.thumbnail.width }}"
+					height="{{ image.thumbnail.height }}" />
+			</li>
+		{% endwith %}
+	{% endfor %}
+</ul>
+
+
+<h2>{{ photo_album.title }} (Photo Album)</h2>
+<ul>
+	{% for m in photo_album.memberships.all %}
+		{% with image=m.item %}
+			<li>
+				<img
+					src="{{ image.thumbnail.url }}"
+					width="{{ image.thumbnail.width }}"
+					height="{{ image.thumbnail.height }}" />
+			</li>
+		{% endwith %}
+	{% endfor %}
+</ul>

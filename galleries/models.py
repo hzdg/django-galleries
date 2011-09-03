@@ -6,12 +6,13 @@ from imagekit import processors
 from imagekit.specs import ImageSpec
 from django.db.models.base import ModelBase
 from django.db.models import Q
+import sys, imp, importlib
 
 
 class ImageModel(_ImageModel, models.Model):
     title = models.CharField(max_length=50)
     description = models.CharField(max_length=255)
-    original_image = models.ImageField(upload_to='crap')
+    original_image = models.ImageField(upload_to='galleries')
 
     def __unicode__(self):
         return self.title
@@ -27,16 +28,37 @@ def create_image_model(app_label, class_name, specs, verbose_name=None):
     _app_label = app_label
     _verbose_name = verbose_name
     
+    # Currently, ImageKit requires that you specify a module containing the
+    # specs. We could use our own metaclass to override this behavior, but
+    # programmatically generating a specs module is less likely to cause issues
+    # with future versions of IK.
+    spec_module_name = 'galleries.specs.dynamic.%s.%s' % (app_label, class_name.lower())
+    parts = spec_module_name.split('.')
+    for i in range(len(parts)):
+        module_name = '.'.join(parts[0:i+1])
+        try:
+            module = importlib.import_module(module_name)
+        except ImportError:
+            module = sys.modules[module_name] = imp.new_module(module_name)
+    for spec in specs:
+        setattr(module, spec.name(), spec)
+    
     class DynamicImageModel(ImageModel):
         class __metaclass__(ImageModel.__metaclass__):
             def __new__(cls, old_class_name, bases, attrs):
                 return ImageModel.__metaclass__.__new__(cls, class_name, bases, attrs)
         
+        class IKOptions:
+            spec_module = spec_module_name
+            image_field = 'original_image'
+            cache_filename_format = '%s/%s/' % (app_label, class_name.lower()) \
+                + '/%(filename)s_%(specname)s.%(extension)s'
+        
         class Meta:
             app_label = _app_label
             verbose_name = _verbose_name
+            proxy = True
 
-    DynamicImageModel._ik.specs = specs # TODO: Is this enough or are we going to have to override ik's ImageModelBase?
     return DynamicImageModel
 
 
