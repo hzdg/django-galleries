@@ -7,3 +7,5 @@ class PhotoAlbum(Gallery):
             'thumbnail': (10, 10),
             'full': (100, 100),
         }
+    class Meta:
+        verbose_name = 'Photo Album'

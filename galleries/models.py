@@ -23,8 +23,9 @@ class ImageModel(_ImageModel, models.Model):
         image_field = 'original_image'
 
 
-def create_image_model(app_label, class_name, specs):
+def create_image_model(app_label, class_name, specs, verbose_name=None):
     _app_label = app_label
+    _verbose_name = verbose_name
     
     class DynamicImageModel(ImageModel):
         class __metaclass__(ImageModel.__metaclass__):
@@ -33,12 +34,13 @@ def create_image_model(app_label, class_name, specs):
         
         class Meta:
             app_label = _app_label
+            verbose_name = _verbose_name
 
     DynamicImageModel._ik.specs = specs # TODO: Is this enough or are we going to have to override ik's ImageModelBase?
     return DynamicImageModel
 
 
-def create_sizes_image_model(app_label, class_name, sizes):
+def create_sizes_image_model(app_label, class_name, sizes, verbose_name=None):
     """Create an image model that exposes different sizes of the image.
     
     Keword arguments:
@@ -63,11 +65,12 @@ def create_sizes_image_model(app_label, class_name, sizes):
 
         specs.append(Spec)
 
-    return create_image_model(app_label, class_name, specs)
+    return create_image_model(app_label, class_name, specs, verbose_name)
 
 
-def create_membership_model(app_label, class_name, gallery_model, member_models):
+def create_membership_model(app_label, class_name, gallery_model, member_models, verbose_name=None):
     _app_label = app_label
+    _verbose_name = verbose_name
     member_choices = Q()
     for member_model in member_models:
         member_choices |= Q(app_label=member_model._meta.app_label,
@@ -88,7 +91,10 @@ def create_membership_model(app_label, class_name, gallery_model, member_models)
 
         class Meta:
             app_label = _app_label
+            verbose_name = _verbose_name
             ordering = ['sort_order']
+
+    return DynamicGalleryMembership
 
 
 class GalleryBase(ModelBase):
@@ -103,8 +109,10 @@ class GalleryBase(ModelBase):
             # Create an additional member model based on the info in extra_image_sizes
             if extra_image_sizes:
                 image_model_name = '%sImage' % class_name
+                image_model_verbose_name = '%s Image' % cls._meta.verbose_name
                 image_model = create_sizes_image_model(app_label,
-                        image_model_name, extra_image_sizes)
+                        image_model_name, extra_image_sizes,
+                        image_model_verbose_name)
                 member_models.append(image_model)
 
             if not member_models:
@@ -113,8 +121,15 @@ class GalleryBase(ModelBase):
             membership_model = getattr(opts, 'membership_model', None)
             if not membership_model:
                 membership_model_name = '%sMembership' % class_name
-                create_membership_model(app_label, membership_model_name,
-                    cls, member_models)
+                membership_model_verbose_name = '%s Membership' % cls._meta.verbose_name
+                membership_model = create_membership_model(app_label, membership_model_name,
+                    cls, member_models, verbose_name=membership_model_verbose_name)
+            
+            cls._gallery_meta = type('GalleryMeta', (object,), {
+                'membership_model': membership_model,
+                'member_models': member_models,
+            })
+            cls.Membership = cls._gallery_meta.membership_model
 
         return ModelBase.__init__(cls, class_name, bases, attrs)
 

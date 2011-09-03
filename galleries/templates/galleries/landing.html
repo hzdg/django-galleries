@@ -1,0 +1,21 @@
+	<ul>
+		{%for g in galleries %}
+			<li>
+				<a class="tab" href="#{{g.title|slugify}}">{{ g.title }}</a>
+				<div id="{{g.title|slugify}}">
+					<div class="window"></div>
+					<ul>
+						{% for m in g.memberships.all %}
+							<li>
+								<a href="{{ m.item.display.url}}">
+								<img src="{{ m.item.thumbnail_image.url}}">
+								<h4>{{m.item.title}}</h4>
+								<p>{{ m.item.caption}}</p>
+								</a>
+							</li>
+						{% endfor%}	
+					</ul>
+				</div>
+			</li>
+		{% endfor%}	
+	</ul>
