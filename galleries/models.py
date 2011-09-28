@@ -3,6 +3,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes import generic
 from django.db.models.base import ModelBase
 from django.db.models import Q
+from django.core.exceptions import FieldError
 import sys, imp, importlib
 
 
@@ -27,16 +28,26 @@ class ImageModel(models.Model):
     original_image = models.ImageField(upload_to='galleries')
 
     class __metaclass__(models.base.ModelBase):
-        def __init__(cls, class_name, bases, attrs):
-            # attrs['proxy'] = True
-            return models.base.ModelBase.__init__(cls, class_name, bases, attrs)
+        def __new__(cls, class_name, bases, attrs):
+            orig_attrs = attrs.copy()
+            if attrs['__module__'] != cls.__module__:
+                Meta = attrs.get('Meta')
+                if Meta is None:
+                    class Meta:
+                        proxy = True
+                    attrs['Meta'] = Meta
+                else:
+                    Meta.proxy = True
+            try:
+                return models.base.ModelBase.__new__(cls, class_name, bases, attrs)
+            except FieldError:
+                return models.base.ModelBase.__new__(cls, class_name, bases, orig_attrs)
 
     def __unicode__(self):
         return self.title
 
     class Meta:
         ordering = ['title']
-        abstract = True
 
 
 class GalleryBase(ModelBase):

@@ -7,6 +7,7 @@ from imagekit.processors.resize import Fit
 class Photo(ImageModel):
     thumbnail = ImageSpec([Fit(50, 50)], image_field='original_file')
     full = ImageSpec([Fit(400, 200)], image_field='original_file')
+    caption = models.CharField(max_length=100)
 
 
 class PortfolioImage(ImageModel):
