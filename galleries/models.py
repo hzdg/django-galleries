@@ -1,15 +1,12 @@
 from django.db import models
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes import generic
-from imagekit.models import ImageModel as _ImageModel
-from imagekit import processors
-from imagekit.specs import ImageSpec
 from django.db.models.base import ModelBase
 from django.db.models import Q
 import sys, imp, importlib
 
 
-class ImageModel(_ImageModel, models.Model):
+class ImageModel(models.Model):
     title = models.CharField(max_length=50)
     description = models.CharField(max_length=255, blank=True)
     original_image = models.ImageField(upload_to='galleries')

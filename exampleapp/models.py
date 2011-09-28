@@ -1,7 +1,7 @@
 from galleries.models import Gallery, ImageModel
 from django.db import models
-from imagekit.specs import ImageSpec
-from imagekit.processors import Fit
+from imagekit.models import ImageSpec
+from imagekit.processors.resize import Fit
 
 
 class Photo(ImageModel):
