@@ -62,7 +62,8 @@ def _create_membership_class(class_name, verbose_name, app_label,
 
         class __metaclass__(Gallery.BaseMembership.__metaclass__):
             def __new__(cls, name, bases, attrs):
-                attrs['__module__'] = module_name
+                if not _abstract:
+                    attrs['__module__'] = module_name
                 return Gallery.BaseMembership.__metaclass__.__new__(cls, class_name,
                     bases, attrs)
         class Meta:
