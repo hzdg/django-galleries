@@ -39,15 +39,12 @@ class ProxyImageModel(ImageModel):
         proxy = True
 
 
-def _create_membership_class(class_name, verbose_name, app_label,
-        member_models, abstract, gallery_class):
+def _create_membership_class(class_name, verbose_name, app_label, module_name,
+        module, member_models, abstract, gallery_class):
 
     _app_label = app_label
     _verbose_name = verbose_name
     _abstract = abstract
-
-    module_name = '%s.models' % app_label
-    module = importlib.import_module(module_name)
 
     member_choices = Q()
     for member_model in member_models:
@@ -98,10 +95,15 @@ class GalleryBase(ModelBase):
             else:
                 membership_class_name = '%sMembership' % class_name
 
+            module_name = cls.__module__
+            module = importlib.import_module(module_name)
+
             membership_class = _create_membership_class(
                     class_name=membership_class_name,
                     verbose_name=membership_verbose_name,
                     app_label=cls._meta.app_label,
+                    module_name=module_name,
+                    module=module,
                     member_models=member_models,
                     abstract=bool(custom_membership),
                     gallery_class=cls,
@@ -110,7 +112,7 @@ class GalleryBase(ModelBase):
             if custom_membership:
                 cls.BaseMembership = membership_class
                 def getter(self):
-                    return getattr(cls.__module__, custom_membership)
+                    return getattr(module, custom_membership)
                 cls.Membership = property(getter)
             else:
                 cls.Membership = membership_class
