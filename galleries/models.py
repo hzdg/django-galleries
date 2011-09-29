@@ -90,8 +90,9 @@ class GalleryBase(ModelBase):
             cls._gallery_meta = gallery_meta
 
             membership_verbose_name = '%s Membership' % cls._meta.verbose_name
-            abstract = getattr(gallery_meta, 'custom_membership', False)
-            if abstract:
+            custom_membership = getattr(gallery_meta, 'membership_class', None)
+
+            if custom_membership:
                 membership_class_name = '%sBaseMembership' % class_name
             else:
                 membership_class_name = '%sMembership' % class_name
@@ -101,15 +102,17 @@ class GalleryBase(ModelBase):
                     verbose_name=membership_verbose_name,
                     app_label=cls._meta.app_label,
                     member_models=member_models,
-                    abstract=abstract,
+                    abstract=bool(custom_membership),
                     gallery_class=cls,
             )
 
-            if abstract:
-                setattr(cls, 'BaseMembership', membership_class)
+            if custom_membership:
+                cls.BaseMembership = membership_class
+                def getter(self):
+                    return getattr(cls.__module__, custom_membership)
+                cls.Membership = property(getter)
             else:
-                print 'setting Membership on %s to %s' % (cls, membership_class)
-                setattr(cls, 'Membership', membership_class)
+                cls.Membership = membership_class
 
         ModelBase.__init__(cls, class_name, bases, attrs)
 

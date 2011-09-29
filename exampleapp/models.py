@@ -37,7 +37,7 @@ class PhotoAlbum(Gallery):
 class Portfolio(Gallery):
     class GalleryMeta:
         member_models = [Video]
-        custom_membership = True
+        membership_class = 'PortfolioMembership'
 
 
 class PortfolioMembership(Portfolio.BaseMembership):
