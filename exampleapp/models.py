@@ -40,5 +40,5 @@ class Portfolio(Gallery):
         custom_membership = True
 
 
-class PortfolioMembership(Portfolio.Membership):
+class PortfolioMembership(Portfolio.BaseMembership):
     extra_field = models.CharField(max_length=10)

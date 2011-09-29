@@ -54,16 +54,16 @@ def _create_membership_class(class_name, verbose_name, app_label,
         member_choices |= Q(app_label=member_model._meta.app_label,
                 model=member_model._meta.module_name)
 
-    class DynamicMembership(Gallery.Membership):
+    class DynamicMembership(Gallery.BaseMembership):
 
         gallery = models.ForeignKey(gallery_class, related_name='memberships')
         content_type = models.ForeignKey(ContentType,
                 limit_choices_to=member_choices)
 
-        class __metaclass__(Gallery.Membership.__metaclass__):
+        class __metaclass__(Gallery.BaseMembership.__metaclass__):
             def __new__(cls, name, bases, attrs):
                 attrs['__module__'] = module_name
-                return Gallery.Membership.__metaclass__.__new__(cls, class_name,
+                return Gallery.BaseMembership.__metaclass__.__new__(cls, class_name,
                     bases, attrs)
         class Meta:
             abstract = _abstract
@@ -76,7 +76,7 @@ def _create_membership_class(class_name, verbose_name, app_label,
 class GalleryBase(ModelBase):
 
     def __init__(cls, class_name, bases, attrs):
-        if [b for b in bases if isinstance(b, GalleryBase)]:
+        if [b for b in bases if isinstance(b, GalleryBase)]: # Don't execute for Gallery itself
             try:
                 gallery_meta = getattr(cls, 'GalleryMeta')
             except AttributeError:
@@ -89,19 +89,27 @@ class GalleryBase(ModelBase):
             gallery_meta.gallery_class = cls
             cls._gallery_meta = gallery_meta
 
-            membership_class_name = '%sMembership' % class_name
             membership_verbose_name = '%s Membership' % cls._meta.verbose_name
+            abstract = getattr(gallery_meta, 'custom_membership', False)
+            if abstract:
+                membership_class_name = '%sBaseMembership' % class_name
+            else:
+                membership_class_name = '%sMembership' % class_name
 
             membership_class = _create_membership_class(
                     class_name=membership_class_name,
                     verbose_name=membership_verbose_name,
                     app_label=cls._meta.app_label,
                     member_models=member_models,
-                    abstract=getattr(gallery_meta, 'custom_membership', False),
+                    abstract=abstract,
                     gallery_class=cls,
             )
 
-            setattr(cls, 'Membership', membership_class)
+            if abstract:
+                setattr(cls, 'BaseMembership', membership_class)
+            else:
+                print 'setting Membership on %s to %s' % (cls, membership_class)
+                setattr(cls, 'Membership', membership_class)
 
         ModelBase.__init__(cls, class_name, bases, attrs)
 
@@ -114,7 +122,7 @@ class Gallery(models.Model):
     def __unicode__(self):
         return self.title
 
-    class Membership(models.Model):
+    class BaseMembership(models.Model):
         object_id = models.PositiveIntegerField()
         item = generic.GenericForeignKey('content_type', 'object_id')
         sort_order = models.IntegerField(default=0)
