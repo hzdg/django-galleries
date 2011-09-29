@@ -5,13 +5,13 @@ from imagekit.processors.resize import Fit
 
 
 class Photo(ImageModel):
-    thumbnail = ImageSpec([Fit(50, 50)], image_field='original_file')
-    full = ImageSpec([Fit(400, 200)], image_field='original_file')
+    thumbnail = ImageSpec([Fit(50, 50)])
+    full = ImageSpec([Fit(400, 200)])
     caption = models.CharField(max_length=100)
 
 
 class PortfolioImage(ImageModel):
-    thumbnail = ImageSpec([Fit(70, 40)], image_field='original_file')
+    thumbnail = ImageSpec([Fit(70, 40)])
 
 
 class Video(models.Model):
@@ -35,8 +35,10 @@ class PhotoAlbum(Gallery):
 
 
 class Portfolio(Gallery):
-    class PortfolioMembership(Gallery.Membership):
-        extra_field = models.CharField(max_length=10)
-
     class GalleryMeta:
         member_models = [Video]
+        custom_membership = True
+
+
+class PortfolioMembership(Portfolio.Membership):
+    extra_field = models.CharField(max_length=10)
