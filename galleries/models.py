@@ -4,7 +4,7 @@ from django.contrib.contenttypes import generic
 from django.db.models.base import ModelBase
 from django.db.models import Q
 from django.core.exceptions import FieldError
-import sys, imp, importlib
+import importlib
 
 
 class GalleryMetaNotDefined(Exception):
@@ -34,13 +34,11 @@ class ImageModel(models.Model):
         ordering = ['title']
 
 
-class ProxyImageModel(ImageModel):
-    class Meta:
-        proxy = True
-
-
 def _create_membership_class(class_name, verbose_name, app_label, module_name,
-        module, member_models, abstract, gallery_class):
+        member_models, abstract, gallery_class):
+    """Creates a membership class to relate a gallery with its member models.
+
+    """
 
     _app_label = app_label
     _verbose_name = verbose_name
@@ -51,28 +49,22 @@ def _create_membership_class(class_name, verbose_name, app_label, module_name,
         member_choices |= Q(app_label=member_model._meta.app_label,
                 model=member_model._meta.module_name)
 
-    class DynamicMembership(Gallery.BaseMembership):
+    class Meta:
+        abstract = _abstract
+        app_label = _app_label
+        verbose_name = _verbose_name
 
-        gallery = models.ForeignKey(gallery_class, related_name='memberships')
-        content_type = models.ForeignKey(ContentType,
-                limit_choices_to=member_choices)
-
-        class __metaclass__(Gallery.BaseMembership.__metaclass__):
-            def __new__(cls, name, bases, attrs):
-                if not _abstract:
-                    attrs['__module__'] = module_name
-
-                if Gallery.BaseMembership in bases:
-                    name = class_name
-
-                return Gallery.BaseMembership.__metaclass__.__new__(cls, name,
-                    bases, attrs)
-        class Meta:
-            abstract = _abstract
-            app_label = _app_label
-            verbose_name = _verbose_name
-
-    return DynamicMembership
+    return type(
+        class_name,
+        (Gallery.BaseMembership,),
+        dict(
+            gallery=models.ForeignKey(gallery_class, related_name='memberships'),
+            content_type=models.ForeignKey(ContentType,
+                    limit_choices_to=member_choices),
+            __module__=module_name,
+            Meta=Meta,
+        )
+    )
 
 
 class GalleryBase(ModelBase):
@@ -100,14 +92,11 @@ class GalleryBase(ModelBase):
                 membership_class_name = '%sMembership' % class_name
 
             module_name = cls.__module__
-            module = importlib.import_module(module_name)
-
             membership_class = _create_membership_class(
                     class_name=membership_class_name,
                     verbose_name=membership_verbose_name,
                     app_label=cls._meta.app_label,
                     module_name=module_name,
-                    module=module,
                     member_models=member_models,
                     abstract=bool(custom_membership),
                     gallery_class=cls,
@@ -115,9 +104,11 @@ class GalleryBase(ModelBase):
 
             if custom_membership:
                 cls.BaseMembership = membership_class
-                def getter(self):
-                    return getattr(module, custom_membership)
-                cls.Membership = property(getter)
+                module = importlib.import_module(module_name)
+                class Descriptor(object):
+                    def __get__(self, instance, owner):
+                        return getattr(module, custom_membership)
+                cls.Membership = Descriptor()
             else:
                 cls.Membership = membership_class
 
