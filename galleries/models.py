@@ -75,7 +75,7 @@ def _create_membership_class(class_name, verbose_name, app_label, module_name,
         member_choices |= Q(app_label=member_model._meta.app_label,
                 model=member_model._meta.module_name)
 
-    class Meta:
+    class Meta(Gallery.BaseMembership.Meta):
         abstract = _abstract
         app_label = _app_label
         verbose_name = _verbose_name
