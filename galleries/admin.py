@@ -27,7 +27,7 @@ class GenericCollectionTabularInline(GenericCollectionInlineModelAdmin):
     template = 'galleries/admin/edit_inline/gen_coll_tabular.html'
 
 
-##TODO: update template 
+# TODO: update template 
 class GenericCollectionStackedInline(GenericCollectionInlineModelAdmin):
     template = 'galleries/admin/edit_inline/gen_coll_stacked.html'
 
@@ -54,14 +54,22 @@ class GalleryAdmin(admin.ModelAdmin):
             js = [settings.STATIC_URL + 'galleries/js/genericcollection.js']
 
 
-# Admins are automatically registered for all Gallery subclasses and member
-# models. If you want to provide a custom admin, you can unregister these and
-# then register your own.
-for subclass in Gallery.__subclasses__():
-    class SubclassGalleryAdmin(GalleryAdmin):
-        model = subclass
-    for member_model in subclass._gallery_meta.member_models:
-        class MemberModelAdmin(admin.ModelAdmin):
-            model = member_model
-        admin.site.register(member_model, MemberModelAdmin)
-    admin.site.register(subclass, SubclassGalleryAdmin)
+def register_gallery_admin(gallery_class, admin_class=None):
+    """Registers an admin for a gallery. If none is provided, a GalleryAdmin
+    will be created. Also registers admins for the member models, since those
+    are required for the gallery admin to work.
+
+    """
+    if not admin_class:
+        admin_class = type('GalleryAdmin', (GalleryAdmin,),
+                dict(model=gallery_class))
+    admin.site.register(gallery_class, admin_class)
+
+    # Register the members
+    for member in gallery_class._gallery_meta.member_models:
+        try:
+            admin.site.unregister(member)
+        except admin.sites.NotRegistered:
+            pass
+        admin.site.register(member, type('GalleryMemberAdmin',
+                (admin.ModelAdmin,), dict(model=member)))
