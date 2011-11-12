@@ -4,7 +4,10 @@ from django.contrib.contenttypes import generic
 from django.db.models.base import ModelBase
 from django.db.models import Q
 from django.core.exceptions import FieldError
-import importlib
+try:
+    import importlib
+except ImportError:
+    from django.utils import importlib
 
 
 class GalleryMetaNotDefined(Exception):
