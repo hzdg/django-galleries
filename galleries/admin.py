@@ -32,10 +32,13 @@ class GenericCollectionStackedInline(GenericCollectionInlineModelAdmin):
     template = 'galleries/admin/edit_inline/gen_coll_stacked.html'
 
 
+class GalleryMembershipInline(GenericCollectionTabularInline):
+    pass
+
+
 def create_gallery_membership_inline(membership_class):
-    class GalleryMembershipInline(GenericCollectionTabularInline):
-        model = membership_class
-    return GalleryMembershipInline
+    return type('%sInline' % membership_class.__name__,
+            (GalleryMembershipInline,), dict(model=membership_class))
 
 
 class GalleryAdminBase(admin.ModelAdmin.__metaclass__):
