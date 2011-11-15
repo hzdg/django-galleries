@@ -40,22 +40,28 @@
           {% endspaceless %}
         </td>
 
-		{% for fieldset in inline_admin_form %}
-		  {% for line in fieldset %}
-		    {% for field in line %}
-		      <td class="{{ field.field.name }}">
-		      {{ field.field.errors.as_ul }}
-		        {% ifequal field.field.name inline_admin_formset.formset.ct_fk_field %}{{ field.field }}
-		        <a id="lookup_id_{{field.field.html_name}}" class="related-lookup" onclick="return showGenericRelatedObjectLookupPopup(this, {{ inline_admin_formset.formset.content_types }});" href="#">
-		        <img width="16" height="16" alt="Lookup" src="/static/admin/img/admin/selector-search.gif"/>
-		        </a>
-		        {% else %}{{ field.field }} {% endifequal %}
-		      </td>
-		    {% endfor %}
-		  {% endfor %}
-		{% endfor %}
-		
-		
+        {% for fieldset in inline_admin_form %}
+          {% for line in fieldset %}
+            {% for field in line %}
+                <td class="{{ field.field.name }}">
+                    {% if field.is_readonly %}
+                        <p>{{ field.contents }}</p>
+                    {% else %}
+                        {{ field.field.errors.as_ul }}
+                        {% ifequal field.field.name inline_admin_formset.formset.ct_fk_field %}{{ field.field }}
+                            <a id="lookup_id_{{field.field.html_name}}" class="related-lookup" onclick="return showGenericRelatedObjectLookupPopup(this, {{ inline_admin_formset.formset.content_types }});" href="#">
+                                <img width="16" height="16" alt="Lookup" src="/static/admin/img/admin/selector-search.gif"/>
+                            </a>
+                        {% else %}
+                            {{ field.field }}
+                        {% endifequal %}
+                    {% endif %}
+                </td>
+            {% endfor %}
+          {% endfor %}
+        {% endfor %}
+
+
         {% if inline_admin_formset.formset.can_delete %}
           <td class="delete">{% if inline_admin_form.original %}{{ inline_admin_form.deletion_field.field }}{% endif %}</td>
         {% endif %}
