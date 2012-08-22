@@ -1,21 +1,21 @@
-# Thanks to Corey Oordt 
+# Thanks to Corey Oordt
 # http://opensource.washingtontimes.com/blog/2009/jan/12/generic-collections-django/
 from django.contrib import admin
 from .models import Gallery
 from django.contrib.contenttypes.models import ContentType
 from django.conf import settings
-
+from imagekit.admin import AdminThumbnail
 
 class GenericCollectionInlineModelAdmin(admin.options.InlineModelAdmin):
     ct_field = "content_type"
     ct_fk_field = "object_id"
-    
+
     def __init__(self, parent_model, admin_site):
         super(GenericCollectionInlineModelAdmin, self).__init__(parent_model, admin_site)
-        ctypes = ContentType.objects.all().order_by('id').values_list('id', 'app_label','model')
+        ctypes = ContentType.objects.all().order_by('id').values_list('id', 'app_label', 'model')
         elements = ["%s: '%s/%s'" % (id, app_label, model) for id, app_label, model in ctypes]
         self.content_types = "{%s}" % ",".join(elements)
-        
+
     def get_formset(self, request, obj=None):
         result = super(GenericCollectionInlineModelAdmin, self).get_formset(request, obj)
         result.content_types = self.content_types
@@ -27,13 +27,19 @@ class GenericCollectionTabularInline(GenericCollectionInlineModelAdmin):
     template = 'galleries/admin/edit_inline/gen_coll_tabular.html'
 
 
-# TODO: update template 
+# TODO: update template
 class GenericCollectionStackedInline(GenericCollectionInlineModelAdmin):
     template = 'galleries/admin/edit_inline/gen_coll_stacked.html'
 
 
 class GalleryMembershipInline(GenericCollectionTabularInline):
-    pass
+    readonly_fields = ['thumbnail']
+    list_editable = ('sort_order',)
+
+    admin_thumbnail_getter = AdminThumbnail('thumbnail')
+
+    def thumbnail(self, obj):
+        return self.admin_thumbnail_getter(obj.item) if obj.item else ''
 
 
 def create_gallery_membership_inline(membership_class):
@@ -54,7 +60,10 @@ class GalleryAdmin(admin.ModelAdmin):
     __metaclass__ = GalleryAdminBase
 
     class Media:
-            js = [settings.STATIC_URL + 'galleries/js/genericcollection.js']
+            js = [settings.STATIC_URL + 'galleries/js/genericcollection.js',
+            'https://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js',
+            'https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.10/jquery-ui.min.js',
+            settings.STATIC_URL + 'galleries/js/admin-list-reorder.js', ]
 
 
 def register_gallery_admin(gallery_class, admin_class=None):
