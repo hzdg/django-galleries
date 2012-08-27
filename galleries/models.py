@@ -3,7 +3,6 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes import generic
 from django.db.models.base import ModelBase
 from django.db.models import Q
-from django.core.exceptions import FieldError
 try:
     import importlib
 except ImportError:
@@ -28,13 +27,12 @@ class MembershipClassNotDefined(Exception):
 class ImageModelBase(models.Model.__metaclass__):
     def __new__(self, class_name, bases, attrs):
         """Since ``ImageModel`` is not abstract, Djano will automatically add a
-        ``OneToOneField`` on base classes pointing back to it. Unfortunately, it
-        doesn't set a ``related_name``, which means the default is used. Since
-        the default is generated using only the model class name, if you have
-        two models with the same name in different apps, you well have a
-        conflict. So we create our own ``OneToOneField`` with a more descriptive
-        ``related_name``.
-
+        ``OneToOneField`` on base classes pointing back to it. Unfortunately,
+        it doesn't set a ``related_name``, which means the default is used.
+        Since the default is generated using only the model class name, if you
+        have two models with the same name in different apps, you well have a
+        conflict. So we create our own ``OneToOneField`` with a more
+        descriptive ``related_name``.
         """
         if [b for b in bases if isinstance(b, ImageModelBase)]:
             has_parent_link = False
@@ -87,7 +85,8 @@ def _create_membership_class(class_name, verbose_name, app_label, module_name,
         class_name,
         (Gallery.BaseMembership,),
         dict(
-            gallery=models.ForeignKey(gallery_class, related_name='memberships'),
+            gallery=models.ForeignKey(gallery_class,
+                                      related_name='memberships'),
             content_type=models.ForeignKey(ContentType,
                     limit_choices_to=member_choices),
             __module__=module_name,
@@ -99,15 +98,19 @@ def _create_membership_class(class_name, verbose_name, app_label, module_name,
 class GalleryBase(ModelBase):
 
     def __init__(cls, class_name, bases, attrs):
-        if [b for b in bases if isinstance(b, GalleryBase)]: # Don't execute for Gallery itself
+        # Don't execute for Gallery itself
+        if [b for b in bases if isinstance(b, GalleryBase)]:
             try:
                 gallery_meta = getattr(cls, 'GalleryMeta')
             except AttributeError:
-                raise GalleryMetaNotDefined('%s must define GalleryMeta.' % class_name)
+                raise GalleryMetaNotDefined('%s must define GalleryMeta.' %
+                                            class_name)
             try:
                 member_models = getattr(gallery_meta, 'member_models')
             except AttributeError:
-                raise MemberModelsNotDefined('%s.GalleryMeta must define a list of member_models.' % class_name)
+                raise MemberModelsNotDefined(
+                    '%s.GalleryMeta must define a list of member_models.' %
+                    class_name)
 
             gallery_meta.gallery_class = cls
             cls._gallery_meta = gallery_meta
@@ -134,6 +137,7 @@ class GalleryBase(ModelBase):
             if custom_membership:
                 cls.BaseMembership = membership_class
                 module = importlib.import_module(module_name)
+
                 class Descriptor(object):
                     def __get__(self, instance, owner):
                         return getattr(module, custom_membership)
