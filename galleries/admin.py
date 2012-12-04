@@ -45,12 +45,15 @@ class GenericCollectionStackedInline(GenericCollectionInlineModelAdmin):
 
 class GalleryMembershipInline(GenericCollectionTabularInline):
     readonly_fields = ['thumbnail']
-    list_editable = ('sort_order',)
+    list_editable = ('sort_order', )
 
     admin_thumbnail_getter = AdminThumbnail('thumbnail')
 
     def thumbnail(self, obj):
-        return self.admin_thumbnail_getter(obj.item) if obj.item else ''
+        if hasattr(obj, 'thumbnail'):
+            return self.admin_thumbnail_getter(obj.item) if obj.item else ''
+
+        return ''
 
 
 def create_gallery_membership_inline(membership_class):
