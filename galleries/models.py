@@ -46,7 +46,7 @@ class ImageModelBase(models.Model.__metaclass__):
             if not has_parent_link:
                 field = models.OneToOneField(ImageModel, parent_link=True,
                         related_name='%(app_label)s_%(class)s')
-                attrs['imagemodel_ptr'] = field
+
         return models.Model.__metaclass__.__new__(self, class_name, bases,
                 attrs)
 
