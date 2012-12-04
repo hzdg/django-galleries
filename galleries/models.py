@@ -26,20 +26,23 @@ class MembershipClassNotDefined(Exception):
 
 class ImageModelBase(models.Model.__metaclass__):
     def __new__(self, class_name, bases, attrs):
-        """Since ``ImageModel`` is not abstract, Djano will automatically add a
+        """Since ``ImageModel`` is not abstract, Django will automatically add a
         ``OneToOneField`` on base classes pointing back to it. Unfortunately,
         it doesn't set a ``related_name``, which means the default is used.
+
         Since the default is generated using only the model class name, if you
-        have two models with the same name in different apps, you well have a
+        have two models with the same name in different apps, you will have a
         conflict. So we create our own ``OneToOneField`` with a more
         descriptive ``related_name``.
         """
         if [b for b in bases if isinstance(b, ImageModelBase)]:
             has_parent_link = False
+
             for field in attrs.values():
-                if getattr(field, 'parent_link', False):
+                if hasattr(field, 'parent_link'):
                     has_parent_link = True
                     break
+
             if not has_parent_link:
                 field = models.OneToOneField(ImageModel, parent_link=True,
                         related_name='%(app_label)s_%(class)s')
