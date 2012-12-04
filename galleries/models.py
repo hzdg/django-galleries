@@ -64,6 +64,16 @@ class ImageModel(models.Model):
         ordering = ['title']
 
 
+class EmbedModel(models.Model):
+    """ Allow the insert of emebed codes in the model """
+    __metaclass__ = ImageModelBase
+    title = models.CharField(max_length=50)
+    embed_code = models.TextField()
+
+    def __unicode__(self):
+        return self.title
+
+
 def _create_membership_class(class_name, verbose_name, app_label, module_name,
         member_models, abstract, gallery_class):
     """Creates a membership class to relate a gallery with its member models.
