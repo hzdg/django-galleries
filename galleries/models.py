@@ -3,6 +3,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes import generic
 from django.db.models.base import ModelBase
 from django.db.models import Q
+
 try:
     import importlib
 except ImportError:
