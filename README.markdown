@@ -6,7 +6,7 @@ and embedded videos. This app mostly has abstract models for you to use and
 append too for custom thumbnail sizes, photo-sizes.
 
 
-Example
+Example:
 ------------------------------
 
 ```py
@@ -34,6 +34,14 @@ from .models import ApartmentGallery
 from galleries.admin import register_gallery_admin
 
 register_gallery_admin(ApartmentGallery)
+
+
+# settings.py
+INSTALLED_APPS = (
+    'imagekit',
+    ...
+)
 ```
 
-This should register you new app with our galleries models
+This should register you new app with our galleries models and include the
+thumbnail preview.
