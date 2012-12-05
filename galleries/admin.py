@@ -17,10 +17,9 @@ class GenericCollectionInlineModelAdmin(admin.options.InlineModelAdmin):
     def __init__(self, parent_model, admin_site):
         super(GenericCollectionInlineModelAdmin, self).__init__(parent_model,
                                                                 admin_site)
-        ctypes = ContentType.objects.all().order_by('id'
-                                                   ).values_list('id',
-                                                                 'app_label',
-                                                                 'model')
+        ctypes = ContentType.objects.all(
+                    ).order_by('id').values_list('id', 'app_label', 'model')
+
         elements = ["%s: '%s/%s'" % (id, app_label, model) for id, app_label,
                     model in ctypes]
         self.content_types = "{%s}" % ",".join(elements)
