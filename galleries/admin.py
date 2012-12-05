@@ -45,7 +45,7 @@ class GalleryMembershipInline(GenericCollectionTabularInline):
     readonly_fields = ['thumbnail']
     list_editable = ('sort_order', )
 
-    admin_thumbnail_getter = AdminThumbnail('thumbnail')
+    admin_thumbnail = AdminThumbnail('thumbnail')
 
     def thumbnail(self, obj):
         if hasattr(obj, 'thumbnail'):
@@ -82,22 +82,31 @@ class GalleryAdmin(admin.ModelAdmin):
             settings.STATIC_URL + 'galleries/js/admin-list-reorder.js', ]
 
 
-def register_gallery_admin(gallery_class, admin_class=None):
-    """Registers an admin for a gallery. If none is provided, a GalleryAdmin
+class MemberModelAdmin(admin.ModelAdmin):
+    admin_thumbnail = AdminThumbnail(image_field='thumbnail')
+    list_display = ('__unicode__', 'admin_thumbnail', )
+
+
+def register_gallery_admin(gallery_class, admin_class=GalleryAdmin,
+                           member_class=MemberModelAdmin):
+    """
+    Registers an admin for a gallery. If none is provided, a GalleryAdmin
     will be created. Also registers admins for the member models, since those
     are required for the gallery admin to work.
-
     """
-    if not admin_class:
-        admin_class = type('GalleryAdmin', (GalleryAdmin,),
-                dict(model=gallery_class))
+
+    admin_class = type('GalleryAdmin', (admin_class,),
+            dict(model=gallery_class))
+
     admin.site.register(gallery_class, admin_class)
 
     # Register the members
     for member in gallery_class._gallery_meta.member_models:
+
         try:
             admin.site.unregister(member)
         except admin.sites.NotRegistered:
             pass
+
         admin.site.register(member, type('GalleryMemberAdmin',
-                (admin.ModelAdmin,), dict(model=member)))
+                (member_class,), dict(model=member)))
