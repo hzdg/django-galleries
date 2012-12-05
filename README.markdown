@@ -11,7 +11,7 @@ Example:
 
 ```py
 # models.py
-from galleries.modeles import Gallery, EmbedModel, ImageModel
+from galleries.models import Gallery, EmbedModel, ImageModel
 from imagekit.models import ImageSpec
 from imagekit.processors import Crop
 
