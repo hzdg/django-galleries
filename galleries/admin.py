@@ -37,7 +37,6 @@ class GenericCollectionTabularInline(GenericCollectionInlineModelAdmin):
     template = 'galleries/admin/edit_inline/gen_coll_tabular.html'
 
 
-# TODO: update template
 class GenericCollectionStackedInline(GenericCollectionInlineModelAdmin):
     template = 'galleries/admin/edit_inline/gen_coll_stacked.html'
 
