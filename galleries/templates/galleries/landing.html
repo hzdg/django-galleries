@@ -8,14 +8,18 @@
 						{% for m in g.memberships.all %}
 							<li>
 								<a href="{{ m.item.display.url}}">
-								<img src="{{ m.item.thumbnail_image.url}}">
-								<h4>{{m.item.title}}</h4>
-								<p>{{ m.item.caption}}</p>
+								{% if m.item.thumbnail %}
+									<img src="{{ m.item.thumbnail.url}}">
+								{% endif %}
+								<h4>{{ m.item.title }}</h4>
+								{% if m.item.caption %}
+									<p>{{ m.item.caption}}</p>
+								{% endif %}
 								</a>
 							</li>
-						{% endfor%}	
+						{% endfor%}
 					</ul>
 				</div>
 			</li>
-		{% endfor%}	
+		{% endfor%}
 	</ul>
