@@ -48,6 +48,10 @@ class ImageModelBase(models.Model.__metaclass__):
                 field = models.OneToOneField(ImageModel, parent_link=True,
                         related_name='%(app_label)s_%(class)s')
 
+                # This is needed to set the related_name.
+                # By default this attribute is not in the attributes dict
+                attrs['%s_ptr' % (class_name)] = field
+
         return models.Model.__metaclass__.__new__(self, class_name, bases,
                 attrs)
 
