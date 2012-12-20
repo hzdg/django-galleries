@@ -180,7 +180,7 @@ class Gallery(models.Model):
         sort_order = models.IntegerField(default=0)
 
         def __unicode__(self):
-            return str(self.item)
+            return unicode(self.item)
 
         class Meta:
             ordering = ['sort_order']
