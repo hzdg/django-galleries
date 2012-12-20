@@ -45,7 +45,7 @@ class ImageModelBase(models.Model.__metaclass__):
                     break
 
             if not has_parent_link:
-                field = models.OneToOneField(ImageModel, parent_link=True,
+                field = models.OneToOneField(bases[0], parent_link=True,
                         related_name='%(app_label)s_%(class)s')
 
                 # This is needed to set the related_name.
