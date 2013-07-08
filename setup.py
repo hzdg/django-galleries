@@ -11,7 +11,7 @@ README = read('README.markdown')
 
 setup(
     name='django-galleries',
-    version='0.1',
+    version='1.0.0',
     description='Simple Djagno galleries.',
     long_description=README,
 
