@@ -16,7 +16,7 @@ setup(
     long_description=README,
 
     author='Matthew Tretter',
-    author_email='matthew@exanimo.com',
+    author_email='m@tthewwithanm.com',
     packages=[
         'galleries',
         'exampleapp',
