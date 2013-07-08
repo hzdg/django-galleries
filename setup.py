@@ -1,5 +1,5 @@
 import os
-from distutils.core import setup
+from setuptools import setup, find_packages
 
 
 def read(fname):
@@ -17,10 +17,7 @@ setup(
 
     author='Matthew Tretter',
     author_email='m@tthewwithanm.com',
-    packages=[
-        'galleries',
-        'exampleapp',
-    ],
+    packages=find_packages(),
     install_requires=[
         'django-imagekit>=0.3.6',
     ],
