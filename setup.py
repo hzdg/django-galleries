@@ -18,6 +18,7 @@ setup(
     author='Matthew Tretter',
     author_email='m@tthewwithanm.com',
     packages=find_packages(),
+    include_package_data=True,
     install_requires=[
         'django-imagekit>=0.3.6',
     ],
