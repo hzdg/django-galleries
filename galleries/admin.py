@@ -59,7 +59,7 @@ def create_gallery_membership_inline(membership_class):
             (GalleryMembershipInline,), dict(model=membership_class))
 
 
-class GalleryAdminBase(admin.ModelAdmin.__metaclass__):
+class GalleryAdminBase(type(admin.ModelAdmin)):
     def __init__(cls, class_name, bases, attrs):
         if [b for b in bases if isinstance(b, GalleryAdminBase)]:
             if 'inlines' not in attrs:
@@ -67,7 +67,7 @@ class GalleryAdminBase(admin.ModelAdmin.__metaclass__):
                     attrs['model'].Membership)
 
                 cls.inlines = [membership_inline]
-        return admin.ModelAdmin.__metaclass__.__init__(cls, class_name, bases,
+        return type(admin.ModelAdmin).__init__(cls, class_name, bases,
                                                        attrs)
 
 

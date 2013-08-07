@@ -25,7 +25,7 @@ class MembershipClassNotDefined(Exception):
     pass
 
 
-class ImageModelBase(models.Model.__metaclass__):
+class ImageModelBase(type(models.Model)):
     def __new__(self, class_name, bases, attrs):
         """Since ``ImageModel`` is not abstract, Django will automatically add a
         ``OneToOneField`` on base classes pointing back to it. Unfortunately,
@@ -52,7 +52,7 @@ class ImageModelBase(models.Model.__metaclass__):
                 # By default this attribute is not in the attributes dict
                 attrs['%s_ptr' % (class_name)] = field
 
-        return models.Model.__metaclass__.__new__(self, class_name, bases,
+        return type(models.Model).__new__(self, class_name, bases,
                 attrs)
 
 
