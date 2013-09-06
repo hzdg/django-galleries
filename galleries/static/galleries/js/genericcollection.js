@@ -1,11 +1,11 @@
-function showGenericRelatedObjectLookupPopup(triggeringLink, ctArray) 
+function showGenericRelatedObjectLookupPopup(triggeringLink, ctArray)
 {
     var realName = triggeringLink.id.replace(/^lookup_/, '');
     var name = id_to_windowname(realName);
     realName = realName.replace(/object_id/, 'content_type');
     var select = document.getElementById(realName);
 
-    if (select.selectedIndex === 0) {
+    if (select.selectedValue === '') {
         alert("Select a content type first.");
         return false;
     }
