@@ -89,17 +89,36 @@ def _create_membership_class(class_name, verbose_name, app_label, module_name,
     _verbose_name = verbose_name
     _abstract = abstract
 
-    member_choices = Q()
-    for member_model in member_models:
-        member_choices |= Q(app_label=member_model._meta.app_label,
-                model=member_model._meta.module_name)
-
     class Meta(Gallery.BaseMembership.Meta):
         abstract = _abstract
         app_label = _app_label
         verbose_name = _verbose_name
 
-    return type(
+    member_choices = Q()
+    for member_model in member_models:
+        member_choices |= Q(app_label=member_model._meta.app_label, model=member_model._meta.module_name)
+
+    if len(member_models) == 1:
+
+        default_content = ContentType.objects.filter(member_choices)
+
+        return type(
+                class_name,
+                (Gallery.BaseMembership,),
+                dict(
+                    gallery=models.ForeignKey(gallery_class,
+                                              related_name='memberships'),
+                    content_type=models.ForeignKey(ContentType,
+                            default=default_content[0],
+                            limit_choices_to=member_choices),
+                    __module__=module_name,
+                    Meta=Meta,
+                )
+            )
+
+    else:
+
+        return type(
         class_name,
         (Gallery.BaseMembership,),
         dict(
