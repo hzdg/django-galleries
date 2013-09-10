@@ -98,7 +98,7 @@ def _create_membership_class(class_name, verbose_name, app_label, module_name,
     for member_model in member_models:
         member_choices |= Q(app_label=member_model._meta.app_label, model=member_model._meta.module_name)
 
-    if len(member_models) == 1:
+    if len(member_models) == 1 and ContentType.objects.filter(member_choices).eixsts():
 
         default_content = ContentType.objects.filter(member_choices)
 
