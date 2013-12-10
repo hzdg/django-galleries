@@ -98,33 +98,20 @@ def _create_membership_class(class_name, verbose_name, app_label, module_name,
     for member_model in member_models:
         member_choices |= Q(app_label=member_model._meta.app_label, model=member_model._meta.module_name)
 
-    if len(member_models) == 1 and ContentType.objects.filter(member_choices).exists():
+    def get_default():
+        if len(member_models) == 1 and ContentType.objects.filter(member_choices).exists():
+            default_content = ContentType.objects.filter(member_choices)
+            return default_content[0]
+        return None
 
-        default_content = ContentType.objects.filter(member_choices)
-
-        return type(
-                class_name,
-                (Gallery.BaseMembership,),
-                dict(
-                    gallery=models.ForeignKey(gallery_class,
-                                              related_name='memberships'),
-                    content_type=models.ForeignKey(ContentType,
-                            default=default_content[0],
-                            limit_choices_to=member_choices),
-                    __module__=module_name,
-                    Meta=Meta,
-                )
-            )
-
-    else:
-
-        return type(
+    return type(
         class_name,
         (Gallery.BaseMembership,),
         dict(
             gallery=models.ForeignKey(gallery_class,
                                       related_name='memberships'),
             content_type=models.ForeignKey(ContentType,
+                    default=get_default,
                     limit_choices_to=member_choices),
             __module__=module_name,
             Meta=Meta,
