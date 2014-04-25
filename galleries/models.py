@@ -60,7 +60,7 @@ class ImageModel(models.Model):
     __metaclass__ = ImageModelBase
     title = models.CharField(max_length=50)
     description = models.CharField(max_length=255, blank=True)
-    original_image = models.ImageField(upload_to='galleries')
+    original_image = models.ImageField(upload_to='galleries', max_length=255)
 
     def __unicode__(self):
         return self.title
