@@ -24,9 +24,9 @@ class GenericCollectionInlineModelAdmin(admin.options.InlineModelAdmin):
                     model in ctypes]
         self.content_types = "{%s}" % ",".join(elements)
 
-    def get_formset(self, request, obj=None):
+    def get_formset(self, *args, **kwargs):
         result = super(GenericCollectionInlineModelAdmin, self
-                      ).get_formset(request, obj)
+                      ).get_formset(*args, **kwargs)
 
         result.content_types = self.content_types
         result.ct_fk_field = self.ct_fk_field
