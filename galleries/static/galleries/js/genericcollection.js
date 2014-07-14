@@ -13,9 +13,9 @@ function showGenericRelatedObjectLookupPopup(triggeringLink, ctArray)
     var href = triggeringLink.href.replace(/#/,'../../../'+ctArray[selectedItem]+"/?t=id");
 
     if (href.search(/\?/) >= 0) {
-        href = href + '&pop=1';
+        href = href + '&_popup=1';
     } else {
-        href = href + '?pop=1';
+        href = href + '?_popup=1';
     }
     var win = window.open(href, name, 'height=500,width=800,resizable=yes,scrollbars=yes');
     win.focus();
