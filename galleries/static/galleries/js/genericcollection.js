@@ -5,7 +5,7 @@ function showGenericRelatedObjectLookupPopup(triggeringLink, ctArray)
     realName = realName.replace(/object_id/, 'content_type');
     var select = document.getElementById(realName);
 
-    if (select.selectedValue === '') {
+    if (select.value === "") {
         alert("Select a content type first.");
         return false;
     }
