@@ -79,6 +79,12 @@ class EmbedModel(models.Model):
         return self.title
 
 
+def get_default(member_models, member_choices):
+    if len(member_models) == 1 and ContentType.objects.filter(member_choices).exists():
+        default_content = ContentType.objects.filter(member_choices)
+        return default_content[0]
+    return None
+
 def _create_membership_class(class_name, verbose_name, app_label, module_name,
         member_models, abstract, gallery_class):
     """Creates a membership class to relate a gallery with its member models.
@@ -98,12 +104,6 @@ def _create_membership_class(class_name, verbose_name, app_label, module_name,
     for member_model in member_models:
         member_choices |= Q(app_label=member_model._meta.app_label, model=member_model._meta.module_name)
 
-    def get_default():
-        if len(member_models) == 1 and ContentType.objects.filter(member_choices).exists():
-            default_content = ContentType.objects.filter(member_choices)
-            return default_content[0]
-        return None
-
     return type(
         class_name,
         (Gallery.BaseMembership,),
@@ -111,7 +111,7 @@ def _create_membership_class(class_name, verbose_name, app_label, module_name,
             gallery=models.ForeignKey(gallery_class,
                                       related_name='memberships'),
             content_type=models.ForeignKey(ContentType,
-                    default=get_default,
+                    default=get_default(member_models, member_choices),
                     blank=True,
                     limit_choices_to=member_choices),
             __module__=module_name,
