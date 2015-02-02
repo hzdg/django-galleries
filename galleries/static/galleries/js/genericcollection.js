@@ -10,8 +10,9 @@ function showGenericRelatedObjectLookupPopup(triggeringLink, ctArray)
         return false;
     }
     var selectedItem = select.item(select.selectedIndex).value;
-    var href = triggeringLink.href.replace(/#/,'../../../'+ctArray[selectedItem]+"/?t=id");
 
+    var href = triggeringLink.href.replace(/(\?|\#).*/,'../../../'+ctArray[selectedItem]);
+    alert(href);
     if (href.search(/\?/) >= 0) {
         href = href + '&_popup=1';
     } else {
