@@ -11,7 +11,7 @@ README = read('README.markdown')
 
 setup(
     name='django-galleries',
-    version='1.1.2',
+    version='1.2.0',
     description='Simple Django galleries.',
     long_description=README,
     author='Matthew Tretter',
