@@ -12,7 +12,6 @@ function showGenericRelatedObjectLookupPopup(triggeringLink, ctArray)
     var selectedItem = select.item(select.selectedIndex).value;
 
     var href = triggeringLink.href.replace(/(\?|\#).*/,'../../../'+ctArray[selectedItem]);
-    alert(href);
     if (href.search(/\?/) >= 0) {
         href = href + '&_popup=1';
     } else {
