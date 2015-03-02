@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes import generic
+from django.core.validators import deconstructible
 from django.db.models.base import ModelBase
 from django.db.models import Q
 
@@ -79,11 +80,34 @@ class EmbedModel(models.Model):
         return self.title
 
 
-def get_default(member_models, member_choices):
-    if len(member_models) == 1 and ContentType.objects.filter(member_choices).exists():
-        default_content = ContentType.objects.filter(member_choices)
-        return default_content[0]
-    return None
+def _get_member_choices(member_models):
+    member_choices = Q()
+    for member_model in member_models:
+        member_choices |= Q(app_label=member_model._meta.app_label, model=member_model._meta.module_name)
+    return member_choices
+
+
+@deconstructible
+class get_default(object):
+    def __init__(self, member_models):
+        self.member_models = member_models
+
+    def __call__(self):
+        member_choices = _get_member_choices(self.member_models)
+        if len(self.member_models) == 1 and ContentType.objects.filter(member_choices).exists():
+            default_content = ContentType.objects.filter(member_choices)
+            return default_content[0].pk
+        return None
+
+
+@deconstructible
+class get_limit_choices_to(object):
+    def __init__(self, member_models):
+        self.member_models = member_models
+
+    def __call__(self):
+        return _get_member_choices(self.member_models)
+
 
 def _create_membership_class(class_name, verbose_name, app_label, module_name,
         member_models, abstract, gallery_class):
@@ -100,9 +124,7 @@ def _create_membership_class(class_name, verbose_name, app_label, module_name,
         app_label = _app_label
         verbose_name = _verbose_name
 
-    member_choices = Q()
-    for member_model in member_models:
-        member_choices |= Q(app_label=member_model._meta.app_label, model=member_model._meta.module_name)
+
 
     return type(
         class_name,
@@ -111,9 +133,9 @@ def _create_membership_class(class_name, verbose_name, app_label, module_name,
             gallery=models.ForeignKey(gallery_class,
                                       related_name='memberships'),
             content_type=models.ForeignKey(ContentType,
-                    default=get_default(member_models, member_choices),
+                    default=get_default(member_models),
                     blank=True,
-                    limit_choices_to=member_choices),
+                    limit_choices_to=get_limit_choices_to(member_models)),
             __module__=module_name,
             Meta=Meta,
         )
