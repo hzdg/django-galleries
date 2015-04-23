@@ -49,10 +49,7 @@ class GalleryMembershipInline(GenericCollectionTabularInline):
     admin_thumbnail = AdminThumbnail('thumbnail')
 
     def thumbnail(self, obj):
-        if hasattr(obj, 'thumbnail'):
-            return self.admin_thumbnail_getter(obj.item) if obj.item else ''
-
-        return ''
+        return self.admin_thumbnail(obj.item) if obj.item else ''
 
 
 def create_gallery_membership_inline(membership_class):
