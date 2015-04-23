@@ -11,7 +11,7 @@ README = read('README.rst')
 
 setup(
     name='django-galleries',
-    version='1.2.0',
+    version='1.3.0',
     description='Simple Django galleries.',
     long_description=README,
     author='Matthew Dapena-Tretter',
