@@ -2,9 +2,7 @@
 Django-Galleries
 ======================
 
-This is a base class to bring in galleries to sites. Currently supports photos
-and embedded videos. This app mostly has abstract models for you to use and
-append too for custom thumbnail sizes, photo-sizes.
+A set of utilities for creating gallery models and admin classes.
 
 
 ------------------------------
