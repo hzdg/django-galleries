@@ -1,17 +1,17 @@
 from galleries.models import Gallery, ImageModel
 from django.db import models
 from imagekit.models import ImageSpec
-from imagekit.processors.resize import Fit
+from imagekit.processors import ResizeToFit
 
 
 class Photo(ImageModel):
-    thumbnail = ImageSpec([Fit(50, 50)])
-    full = ImageSpec([Fit(400, 200)])
+    thumbnail = ImageSpec([ResizeToFit(50, 50)])
+    full = ImageSpec([ResizeToFit(400, 200)])
     caption = models.CharField(max_length=100)
 
 
 class PortfolioImage(ImageModel):
-    thumbnail = ImageSpec([Fit(70, 40)])
+    thumbnail = ImageSpec([ResizeToFit(70, 40)])
 
 
 class Video(models.Model):
