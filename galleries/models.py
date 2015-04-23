@@ -57,6 +57,11 @@ class ImageModelBase(type(models.Model)):
 
 
 class ImageModel(models.Model):
+    """
+    This model is deprecated
+
+    It's recommended that you just define your own member models.
+    """
     __metaclass__ = ImageModelBase
     title = models.CharField(max_length=50)
     description = models.CharField(max_length=255, blank=True)
@@ -70,7 +75,13 @@ class ImageModel(models.Model):
 
 
 class EmbedModel(models.Model):
-    """ Allow the insert of emebed codes in the model """
+    """
+    This model is deprecated
+
+    It's recommended that you just define your own member models.
+
+    Allow the insert of emebed codes in the model
+    """
     __metaclass__ = ImageModelBase
     title = models.CharField(max_length=50)
     embed_code = models.TextField()

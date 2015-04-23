@@ -1,17 +1,34 @@
-from galleries.models import Gallery, ImageModel
+from galleries.models import Gallery
 from django.db import models
 from imagekit.models import ImageSpec
 from imagekit.processors import ResizeToFit
 
 
-class Photo(ImageModel):
-    thumbnail = ImageSpec([ResizeToFit(50, 50)])
-    full = ImageSpec([ResizeToFit(400, 200)])
+class Photo(models.Model):
+    title = models.CharField(max_length=50)
     caption = models.CharField(max_length=100)
+    original_image = models.ImageField(upload_to='galleries')
+    full = ImageSpec([ResizeToFit(400, 200)])
+    thumbnail = ImageSpec([ResizeToFit(50, 50)], source='original_image')
+
+    def __unicode__(self):
+        return self.title
+
+    class Meta:
+        ordering = ['title']
 
 
-class PortfolioImage(ImageModel):
-    thumbnail = ImageSpec([ResizeToFit(70, 40)])
+class PortfolioImage(models.Model):
+    title = models.CharField(max_length=50)
+    caption = models.CharField(max_length=100)
+    original_image = models.ImageField(upload_to='galleries')
+    thumbnail = ImageSpec([ResizeToFit(70, 40)], source='original_image')
+
+    def __unicode__(self):
+        return self.title
+
+    class Meta:
+        ordering = ['title']
 
 
 class Video(models.Model):
