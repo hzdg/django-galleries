@@ -1,7 +1,13 @@
 from django.db import models
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes import generic
-from django.core.validators import deconstructible
+try:
+    from django.core.validators import deconstructible
+except ImportError:
+    # ``deconstructible`` is only needed for versions of Django with the new
+    # app loading stuff. Since those are the same versions that include it, we
+    # can do without it if we don't find it.
+    deconstructible = lambda x: x
 from django.db.models.base import ModelBase
 from django.db.models import Q
 
