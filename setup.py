@@ -14,7 +14,7 @@ setup(
     version='1.2.0',
     description='Simple Django galleries.',
     long_description=README,
-    author='Matthew Tretter',
+    author='Matthew Dapena-Tretter',
     author_email='m@tthewwithanm.com',
     packages=find_packages(),
     include_package_data=True,
