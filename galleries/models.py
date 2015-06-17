@@ -3,6 +3,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes import generic
 from django.db.models.base import ModelBase
 from django.db.models import Q
+from django.apps import apps
 
 try:
     import importlib
@@ -91,9 +92,10 @@ class EmbedModel(models.Model):
 
 
 def get_default(member_models, member_choices):
-    if len(member_models) == 1 and ContentType.objects.filter(member_choices).exists():
-        default_content = ContentType.objects.filter(member_choices)
-        return default_content[0]
+    if apps.ready:
+        if len(member_models) == 1 and ContentType.objects.filter(member_choices).exists():
+            default_content = ContentType.objects.filter(member_choices)
+            return default_content[0]
     return None
 
 def _create_membership_class(class_name, verbose_name, app_label, module_name,
